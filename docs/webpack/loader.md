@@ -297,7 +297,7 @@ webpack 在加载 vue 文件时，会==调用 vue-loader 来处理 vue 文件，
 
 ## style-loader
 ### 作用
-style-loader 的功能就一个，在 DOM 里插入一个 <style> 标签，并且将 CSS 写入这个标签内。
+style-loader 的功能就一个，在 DOM 里插入一个 `<style> `标签，并且将 CSS 写入这个标签内。
 
 简单来说是这样：
 
@@ -337,7 +337,7 @@ module.exports = {
 };
 ```
 #### singletonStyleTag
-==singletonStyleTag==，会按照引入顺序把两个样式文件的内容都被==放到同一个 <style> 标签里==。
+==singletonStyleTag==，会按照引入顺序把两个样式文件的内容都被==放到同一个 `<style> `标签里==。
 
 #### linkTag
 当 ==injectType 为 linkTag==，会通过 <link rel="stylesheet" href=""> 的形式将样式插入到 DOM 中，==此时 style-loader 接收到的数据应该是样式文件的地址==，所以搭配的 loader 应该是 ==file-loader== 而不是 css-loader。

@@ -21,7 +21,7 @@ module.exports = {
     },
     {
       title:'webpack',
-      children:['/webpack/devServer','/webpack/import','/webpack/loader','/webpack/package','/webpack/splitCode']
+      children:['/webpack/devServer','/webpack/import','/webpack/loader','/webpack/package','/webpack/splitCode','/webpack/project']
     },
     ]
   }
