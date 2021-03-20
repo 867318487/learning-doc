@@ -292,6 +292,8 @@ for(let prop in rabbit) alert(prop); // jumps，然后是 eats
 
 它们只会对对象自身进行操作。**不考虑 继承自原型的属性**。
 
+for..of用法见`es6/for...of循环`
+
 ## __proto__总结
 - 在 JavaScript 中，所有的对象都有一个隐藏的 [[Prototype]] 属性，它要么是另一个对象，要么就是 null。
 - 我们可以使用 obj.__proto__ 访问它（历史遗留下来的 getter/setter，这儿还有其他方法，很快我们就会讲到）。
