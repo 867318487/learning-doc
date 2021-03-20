@@ -256,6 +256,10 @@ console.log(person2.friends); // ["aa", "bb", "xxx"]
 ```
 这种方式的高效率体现它只调用了一次 `Parent `构造函数，并且因此避免了在 `Parent.prototype` 上面创建不必要的、多余的属性。与此同时，原型链还能保持不变；因此，还能够正常使用 `instanceof `和 `isPrototypeOf`。开发人员普遍认为寄生组合式继承是引用类型最理想的继承范式。
 
+参考链接
+[JavaScript深入之继承的多种方式和优缺点](https://github.com/mqyqingfeng/Blog/issues/16)
+
+
 ## 继承时的this值
 this 根本不受原型的影响。
 
