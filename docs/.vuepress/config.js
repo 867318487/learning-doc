@@ -17,7 +17,7 @@ module.exports = {
     },
     {
       title:'Vue',
-      children:['/vueDoc/route','/vueDoc/vue','/vueDoc/vueRouter']
+      children:['/vueDoc/route','/vueDoc/vue','/vueDoc/vueRouter','/vueDoc/bindData']
     },
     {
       title:'webpack',
