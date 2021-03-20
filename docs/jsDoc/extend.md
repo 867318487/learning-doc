@@ -286,9 +286,9 @@ for(let prop in rabbit) alert(prop); // jumps，然后是 eats
 ### for..in会忽略不可枚举属性
 如果 for..in 循环会列出继承的属性，那为什么 hasOwnProperty 没有像 eats 和 jumps 那样出现在 for..in 循环中？
 
-答案很简单：它是不可枚举的。就像 Object.prototype 的其他属性，hasOwnProperty 有 enumerable:false 标志。并且 for..in 只会列出可枚举的属性。这就是为什么它和其余的 Object.prototype 属性都未被列出。
+答案很简单：它是不可枚举的。就像 Object.prototype 的其他属性，hasOwnProperty 有 enumerable:false 标志。**并且 for..in 只会列出可枚举的属性。**这就是为什么它和其余的 Object.prototype 属性都未被列出。
 
-几乎所有其他键/值获取方法，例如 `Object.keys `和` Object.values` 等，都会忽略继承的属性。
+几乎所有其他键/值获取方法，**例如 `Object.keys `和` Object.values` 等，都会忽略继承的属性。**
 
 它们只会对对象自身进行操作。**不考虑 继承自原型的属性**。
 
@@ -324,7 +324,7 @@ let rabbit = new Rabbit("White Rabbit"); // 等价 rabbit.__proto__ == animal
 
 alert( rabbit.eats ); // true
 ```
-`F.prototype `属性仅在 `new F` 被调用时使用，它为新对象的 `[[Prototype]] `赋值。如果在创建之后，F.prototype 属性有了变化`（F.prototype = <another object>）`，那么通过 new F 创建的新对象也将随之拥有新的对象作为 `[[Prototype]]`，==但已经存在的对象将保持旧有的值。==
+`F.prototype `属性仅在 `new F` 被调用时使用，它为新对象的 `[[Prototype]] `赋值。如果在创建之后，F.prototype 属性有了变化`（F.prototype = <another object>）`，那么通过 new F 创建的新对象也将随之拥有新的对象作为 `[[Prototype]]`，== 但已经存在的对象将保持旧有的值。==
 ### 默认的 F.prototype，构造器属性
 每个函数都有` "prototype"` 属性，即使我们没有提供它。
 
@@ -332,7 +332,7 @@ alert( rabbit.eats ); // true
 ## F.prototype总结
 - `F.prototype `属性（不要把它与 [[Prototype]] 弄混了）在 `new F` 被调用时为新对象的 [[Prototype]] 赋值。
 - `F.prototype` 的值要么是一个对象，要么就是 null：其他值都不起作用。
-- `"prototype"` 属性仅在设置了一个构造函数（constructor function），==并通过 new 调用时，才具有这种特殊的影响==。
+- `"prototype"` 属性仅在设置了一个构造函数（constructor function），**并通过 new 调用时，才具有这种特殊的影响**。
 
 参考链接
 [F.prototype](https://zh.javascript.info/function-prototype)
