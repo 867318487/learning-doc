@@ -366,6 +366,44 @@ User.prototype.sayHi = function() {
 };
 
 ```
+
+扩展
+
+```js
+class a{
+  // constructor(){
+  //   this.sayHi=this.sayHi.bind(this)
+  // }
+  sayHi(){//绑在原型上，所以相等
+    console.log(this)
+  }
+
+}
+class b{
+  constructor(){
+  }
+
+  sayHi=()=>{//绑在实例上，所以不相等
+    console.log(this);
+  }
+
+}
+
+var a1=new a();
+var a2=new a();
+
+var b1=new b();
+var b2=new b();
+
+console.log(a1.sayHi===a2.sayHi);
+console.log(b1.sayHi===b2.sayHi);
+console.log(a1.sayHi());
+console.log(a2.sayHi());
+console.log(b1.sayHi());
+console.log(b2.sayHi());
+
+```
+
 参考链接
 [Class 基本语法](https://zh.javascript.info/class)
 
