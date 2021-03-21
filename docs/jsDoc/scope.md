@@ -108,8 +108,16 @@ ECStack.pop();
 ECStack.push(<f> functionContext);
 ECStack.pop();
 ```
+
+作用域相关延伸：（静态作用域和动态作用域）<br>
+结果：两段代码都会打印：local scope。<br>
+原因也很简单，**因为JavaScript采用的是词法作用域，函数的作用域基于函数创建的位置。** <br>
+而引用《JavaScript权威指南》的回答就是：<br>
+**JavaScript 函数的执行用到了作用域链，这个作用域链是在函数定义的时候创建的。** 嵌套的函数 f() 定义在这个作用域链里，其中的变量 scope 一定是局部变量，不管何时何地执行函数 f()，这种绑定在执行 f() 时依然有效。
+
 参考链接：
 - [JavaScript深入之执行上下文栈](https://github.com/mqyqingfeng/Blog/issues/4)
+- [JavaScript深入之词法作用域和动态作用域 ](https://github.com/mqyqingfeng/Blog/issues/3)
 - [一道js面试题引发的思考](https://github.com/kuitos/kuitos.github.io/issues/18)
 
 ## 作用域链
@@ -208,10 +216,12 @@ bar();
 ```
 JavaScript采用静态作用域，让我们分析下执行过程：
 
-执行 foo 函数，先从 foo 函数内部查找是否有局部变量 value，如果没有，就根据书写的位置，查找上面一层的代码，也就是 value 等于 1，所以结果会打印 1。（有疑问）
+执行 foo 函数，先从 foo 函数内部查找是否有局部变量 value，如果没有，就根据书写的位置，查找上面一层的代码，也就是 value 等于 1，所以结果会打印 1。（容易错）
+
 
 参考文章
 - [JavaScript深入之作用域链](https://github.com/mqyqingfeng/Blog/issues/6)
+- [JavaScript深入之词法作用域和动态作用域](https://github.com/mqyqingfeng/Blog/issues/3)
 
 ## 闭包
 如果我们约定，用箭头表示其前后的两次输出之间有 1 秒的时间间隔，而逗号表示其前后的两次输出之间的时间间隔可以忽略，代码实际运行的结果该如何描述？
