@@ -1,76 +1,57 @@
 # 防抖节流/深浅拷贝
 ## 防抖实现
-典型例子：限制鼠标连续点击
-
-当一次事件发生后，事件处理器要等一定阀值的时间，如果这段时间过去后再也没有事件发生，就处理最后一次发生的事件。假设还差0.01秒就到达指定事件，这个时候又来了一个事件，那么之前的等待作废，需要重新再等指定事件。
+- 原理：在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
+- 适用场景：
+   - 按钮提交场景：防止多次提交按钮，只执行最后提交的一次
+   - 搜索框联想场景：防止联想发送请求，只发送最后一次输入
+   - 限制鼠标连续点击
 ```js
-//简单版
-// func是用户传入需要防抖的函数
-// wait是等待时间
-const debounce = (func, wait = 50) => {
-  // 缓存一个定时器id
-  let timer = 0
-  // 这里返回的函数是每次用户实际调用的防抖函数
-  // 如果已经设定过定时器了就清空上一次的定时器
-  // 开始一个新的定时器，延迟执行用户传入的方法
-  return function(...args) {
-    if (timer) clearTimeout(timer)
-    timer = setTimeout(() => {
-      func.apply(this, args)
-    }, wait)
-  }
+function debounce(func, wait, immediate) {
+    var timeout, result;
+    var debounced = function () {
+        var context = this;
+        var args = arguments;
+        if (timeout) clearTimeout(timeout);
+        if (immediate) {//是否立即执行
+            // 如果已经执行过，不再执行
+            var callNow = !timeout;
+            timeout = setTimeout(function(){
+                timeout = null;
+            }, wait)
+            if (callNow) result = func.apply(context, args)//第一次立即执行
+        }
+        else {
+            timeout = setTimeout(function(){
+                func.apply(context, args)
+            }, wait);
+        }
+        return result;
+    };
+    debounced.cancel = function() {//取消节流
+        clearTimeout(timeout);
+        timeout = null;
+    };
+
+    return debounced;
 }
-// 不难看出如果用户调用该函数的间隔小于wait的情况下，上一次的时间还未到就被清除了，并不会执行函数
-
-/****-----------带是否立即执行参数的-------------*****/
-/**多用于按钮防抖
- * 防抖函数，返回函数连续调用时，空闲时间必须大于或等于 wait，func 才会执行
- *
- * @param  {function} func        回调函数
- * @param  {number}   wait        表示时间窗口的间隔
- * @param  {boolean}  immediate   设置为ture时，是否立即调用函数
- * @return {function}             返回客户调用函数
- */
-function debounce (func, wait = 50, immediate = true) {
-  let timer, context, args
-
-  // 延迟执行函数
-  const later = () => setTimeout(() => {
-    // 延迟函数执行完毕，清空缓存的定时器序号
-    timer = null
-    // 延迟执行的情况下，函数会在延迟函数中执行
-    // 使用到之前缓存的参数和上下文
-    if (!immediate) {
-      func.apply(context, args)
-      context = args = null
-    }
-  }, wait)
-
-  // 这里返回的函数是每次实际调用的函数
-  return function(...params) {
-    // 如果没有创建延迟执行函数（later），就创建一个
-    if (!timer) {
-      timer = later()
-      // 如果是立即执行，调用函数
-      // 否则缓存参数和调用上下文
-      if (immediate) {
-        func.apply(this, params)
-      } else {
-        context = this
-        args = params
-      }
-    // 如果已有延迟执行函数（later），调用的时候清除原来的并重新设定一个
-    // 这样做延迟函数会重新计时
-    } else {
-      clearTimeout(timer)
-      timer = later()
-    }
-  }
-}
-
+//*******************使用*****************
+var count = 1;
+var container = document.getElementById('container');
+function getUserAction(e) {
+    container.innerHTML = count++;
+};
+var setUseAction = debounce(getUserAction, 10000, true);
+container.onmousemove = setUseAction;
+document.getElementById("button").addEventListener('click', function(){
+    setUseAction.cancel();
+})
 ```
 ## 节流实现
-可以理解为事件在一个管道传输，加上这个节流阀以后，事件的流速就会减慢。实际上这个函数的作用就是如此，他可以讲一个函数的调用频率限制在一定阀值内，例如1s，那么1s内这个函数一定不会被调用2次
+- 原理：在事件被触发n秒后再执行回调，如果在这n秒内又被触发，则重新计时。
+- 适用场景：
+   - 按钮提交场景：防止多次提交按钮，只执行最后提交的一次
+   - 搜索框联想场景：防止联想发送请求，只发送最后一次输入
+   - 限制鼠标连续点击
 ```js
 function throttle(fn,delay=2000){
     var last,timer;
