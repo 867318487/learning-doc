@@ -5,7 +5,6 @@
 
 ### 全局上下文
 在全局执行上下文中this都指代全局对象。
-
 - this等价于window对象
 - var === this. === winodw.
 
@@ -97,8 +96,6 @@ student.arrowDoSth2(); // 'window'
 箭头函数外的this是缓存的该箭头函数上层的普通函数的this。如果没有普通函数，则是全局对象（浏览器中则是window）。
 **也就是说无法通过call、apply、bind绑定箭头函数的this(它自身没有this)。而call、apply、bind可以绑定缓存箭头函数上层的普通函数的this。**
 比如：
-
-
 ```javascript
 var student = {
     name: '若川',
@@ -208,7 +205,6 @@ this指向所在的DOM元素
 <button onclick="console.log(this);">Click Me</button>
 ```
 
-
 总结：
 判断一个函数的this绑定，就需要找到这个函数的直接调用位置
 - 由new调用：绑定到新创建的对象。注意：显示return函数或对象，返回值不是新创建的对象，而是显式返回的函数或对象。
@@ -217,10 +213,9 @@ this指向所在的DOM元素
 - 默认：全局对象
 - 注意：箭头函数不使用上面的绑定规则，根据外层作用域来决定this，继承外层函数调用的this绑定。
 
-
-
 ### 类上下文
-## 
+待整理
+
 ## call、apply的区别
 call 和 apply 的主要作用，是改变对象的执行上下文，并且是立即执行的。它们在参数上的写法略有区别。
 ```javascript
@@ -229,9 +224,9 @@ Function.call(obj,[param1[,param2[,…[,paramN]]]])
 //第二个参数，必须是数组或者类数组，它们会被转换成类数组，传入 Function 中，并且会被映射到 Function 对应的参数上。
 Function.apply(obj[,argArray])
 ```
+
 ## call、apply、bind的实现
 ### call实现
-
 ```javascript
   Function.prototype.call2 = function(content = window) {     
      content.fn = this; //将函数设置为对象的属性，本例中this指向bar 。 ==》foo.fn=bar let args = [...arguments].slice(1); 
@@ -248,7 +243,6 @@ Function.apply(obj[,argArray])
   } 
   bar.call2(foo, 'black', '18') // black 18 1
 ```
-
 
 ### apply实现
 同call
