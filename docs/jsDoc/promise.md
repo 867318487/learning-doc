@@ -8,7 +8,7 @@
 
 这三种状态只能从**pendeng-->resolved(fulfilled)，或者pending-->rejected**，不能逆向转换，也不能在resolved(fulfilled)和rejected之间转换。**并且一旦状态改变，就不会再改变**，会一直保持这个结果。
 
-```js
+```javascript
 //创建promise的实例
 let promise = new Promise((resolve,reject)=>{
     //刚创建实例时的状态：pending
@@ -25,7 +25,7 @@ let promise = new Promise((resolve,reject)=>{
 
 ### then（）
 
-```js
+```javascript
 //then() 用于绑定处理操作后的处理程序
 promise.then((res)=> {
     //处理操作成功后的业务（即Promise对象的状态变为fullfilled时调用）
@@ -35,7 +35,7 @@ promise.then((res)=> {
 ```
 ### catch（）
 
-```js
+```javascript
 //catch() 用于操作异常
 promise.catch((error)=> {
     //处理操作失败后的业务
@@ -43,7 +43,7 @@ promise.catch((error)=> {
 ```
 一般来说，建议不要在then()里面定义rejected状态的回调函数，而是将then()用于处理操作成功，将catch()用于处理操作异常。因为这样做可以捕获then()执行中的错误，也更接近同步中try/catch的写法：
 
-```js
+```javascript
 //try-catch
 // 不好的写法
 promise.then((res)=> {
@@ -59,82 +59,70 @@ promise.then((res)=> {
     //处理操作失败后的业务
   });
 ```
->效果和写在then的第二个参数里面一样。不过它还有另外一个作用：在执行resolve的回调（也就是上面then中的第一个参数）时，如果抛出异常了（代码出错了），那么并不会报错卡死js，而是会进到这个catch方法中。
+> 效果和写在then的第二个参数里面一样。不过它还有另外一个作用：在执行resolve的回调（也就是上面then中的第一个参数）时，如果抛出异常了（代码出错了），那么并不会报错卡死js，而是会进到这个catch方法中。
 
 ### all（）并行异步
-接受一个数组作为参数，数组的元素是Promise实例对象。只有当参数中的实例对象的状态都为fulfilled时，Promise.all( )才会有返回。
+成功和失败的返回值是不同的，成功的时候返回的是一个结果数组，而失败的时候则返回最先被reject失败状态的值。
+**完成（Fulfillment）：**
+接受一个数组作为参数，数组的元素是Promise实例对象。只有当参数中的实例对象的状态**都为fulfilled时，Promise.all( )才会有返回**。
+**失败/拒绝（Rejection）：**
+如果传入的 promise 中**有一个失败（rejected）**，Promise.all 异步地将失败的那个结果给失败状态的回调函数，**而不管其它 promise 是否完成**。(MDN)
 
 
-```js
-//创建实例promise1
-            let promise1 = new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve('promise1操作成功');
-                    console.log('1')
-                }, 3000);
-            });
+```javascript
+let wake = (time) => {
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      resolve(`${time / 1000}秒后醒来`)
+    }, time)
+  })
+}
 
-            //创建实例promise1
-            let promise2 = new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve('promise2操作成功');
-                    console.log('2')
-                }, 1000);
-            });
+let p1 = wake(3000)
+let p2 = wake(2000)
 
-
-            Promise.all([promise1, promise2]).then((result) => {
-                console.log(result);
-            });
-            
-            //输出的结果
-            //第一秒            2
-            //第三秒            1
-            //第三秒后所有的结果都返回了 ["promise2操作成功","promise1操作成功"]
+Promise.all([p1, p2]).then((result) => {
+  console.log(result)       // [ '3秒后醒来', '2秒后醒来' ]
+}).catch((error) => {
+  console.log(error)
+})
 ```
-> 使用场景：执行某个操作需要依赖多个接口请求回的数据，且**这些接口之间不存在互相依赖的关系**。这时使用Promise.all()，等到所有接口都请求成功了，它才会进行操作。**谁跑的慢，以谁为准执行回调。all接收一个数组参数，里面的值最终都算返回Promise对象**
-
-### race() 并行异步
-和all()的参数一样，参数中的promise实例，**只要有一个状态发生变化（不管是成功fulfilled还是异常rejected）**，它就会有返回，其他实例中再发生变化，它也不管了。
-
-```js
-            //创建实例promise1
-            let promise1 = new Promise((resolve) => {
-                setTimeout(() => {
-                    resolve('promise1操作成功');
-                    console.log('1')
-                }, 3000);
-            });
-
-            //创建实例promise1
-            let promise2 = new Promise((resolve, reject) => {
-                setTimeout(() => {
-                    reject('promise2操作失败');// resolve('promise2操作成功');
-                    console.log('2')
-                }, 1000);
-            });
 
 
-            Promise.race([promise1, promise2])
-                .then((result) => {
-                    console.log("result=="+result);
-                })
-                .catch((error) => {
-                    console.log("error=="+error);
-                })
-                
-       //输出结果
-       //第一秒                      2
-       //第一秒后                    error==promise2操作失败(result==promise2操作成功)
-       //第三秒                      1
+> 使用场景：Promise.all获得的成功结果的数组里面的数据顺序和Promise.all接收到的数组顺序是一致的，即p1的结果在前，即便p1的结果获取的比p2要晚。这带来了一个绝大的好处：在前端开发请求数据的过程中，偶尔会遇到发送多个请求并根据请求顺序获取和使用数据的场景，使用Promise.all毫无疑问可以解决这个问题。
+> 
+
+
+
+
+### race() 并行异步**
+Promse.race就是赛跑的意思，意思就是说，Promise.race([p1, p2, p3])里面哪个**结果获得的快，就返回那个结果，不管结果本身是成功状态还是失败状态**。
+
+```javascript
+let p1 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    resolve('success')
+  },1000)
+})
+
+let p2 = new Promise((resolve, reject) => {
+  setTimeout(() => {
+    reject('failed')
+  }, 500)
+})
+
+Promise.race([p1, p2]).then((result) => {
+  console.log(result)
+}).catch((error) => {
+  console.log(error)  // 打开的是 'failed'
+})
 ```
-> 1s后，promise2进入rejected状态，由于一个实例的状态发生了变化，所以Promise.race()就立刻执行了。**谁跑的快，以谁为准执行回调**
-
+> **只要有一个状态发生变化（不管是成功fulfilled还是异常rejected）**，它就会有返回，其他实例中再发生变化，它也不管了。**谁跑的快，以谁为准执行回调**
 
 ### 串行异步执行
 如现在有三个请求，请求A、请求B、请求C。请求C要将请求B的请求回来的数据做为参数，请求B要将请求A的请求回来的数据做为参数。
 
-```js
+```javascript
 let promise = new Promise((resolve, reject) => {
                 if (true) {
                     //调用操作成功方法
@@ -175,8 +163,11 @@ let promise = new Promise((resolve, reject) => {
     //请求C成功
     //...
 ```
+
 写法优化
-```js
+
+
+```javascript
 // 串行异步执行
 let tasks=[promise,requestA,requestB,requestC];
             let parallelPromises =()=>{
@@ -187,7 +178,8 @@ let tasks=[promise,requestA,requestB,requestC];
                )}
 ```
 
->可以看出请求C依赖请求B的结果，请求B依赖请求A的结果，在请求A中是使用了return将需要的数据返回，传递给下一个then()中的请求B，实现了参数的传递。同理，请求B中也是用了return，将参数传递给了请求C。
+
+> 可以看出请求C依赖请求B的结果，请求B依赖请求A的结果，在请求A中是使用了return将需要的数据返回，传递给下一个then()中的请求B，实现了参数的传递。同理，请求B中也是用了return，将参数传递给了请求C。
 
 ## 实现一个promise
 支持三种状态
@@ -195,13 +187,13 @@ let tasks=[promise,requestA,requestB,requestC];
 - 实现promise对象的状态改变，改变只有两种可能：从pending变为fulfilled和从pending变为rejected。
 - 实现一旦promise状态改变，再对promise对象添加回调函数，也会立即得到这个结果
 
-```js
+```javascript
 const PENDING = "pending";
 const FULFILLED = "fulfilled";
 const REJECTED = "rejected";
 ```
 构造函数
-```js
+```javascript
 function MyPromise(fn) {
     const self = this;
     self.value = null;
@@ -241,6 +233,8 @@ function MyPromise(fn) {
     }
 }
 ```
+
+
 > 在reslove和reject里面用setTimeout进行包裹，使其到then方法执行之后再去执行，这样我们就让promise支持传入同步方法，另外，关于这一点，Promise/A+规范里也明确要求了这一点。
 
 支持链式调用
@@ -253,7 +247,7 @@ function MyPromise(fn) {
 - 保持这种链式写法的同时又能使异步操作衔接执行。我们其实让then方法最后不再返回自身实例，而是返回一个新的promise即可，我们可以叫它bridgePromise，它最大的作用就是衔接后续操作
 
 
-```js
+```javascript
 MyPromise.prototype.then = function(onFulfilled, onRejected) {
     const self = this;
     let bridgePromise;//return bridgePromise支持链式调用
@@ -305,6 +299,8 @@ MyPromise.prototype.then = function(onFulfilled, onRejected) {
     }
 }
 ```
+
+
 resolvePromise里加了额外的两个判断
 - 第一个是x和bridgePromise是指向相同值时，报出循环引用的错误，使promise符合2.3.1规范
 - 第二个是增加了一个x 为对象或者函数的判断，这一条判断主要对应2.3.3规范
@@ -318,11 +314,13 @@ resolvePromise里加了额外的两个判断
     > 2. 当rejectPromise被以r为参数调用，则以r为原因将promise拒绝
     > 3. 如果resolvePromise和rejectPromise都被调用了，或者被调用了多次，则只有第一次有效，后面的忽略。
     > 4. 如果仔调用then时抛出了异常，则：
-      3.4.1.如果resolvePromise或rejectPromise已经被调用了，则忽略它。
-      3.4.2.否则，以e为
+    3.4.1.如果resolvePromise或rejectPromise已经被调用了，则忽略它。
+    3.4.2.否则，以e为
 reason将promise拒绝。
-1. 如果then不是一个函数，则以x为值fullfill promise。
-```js
+4. 如果then不是一个函数，则以x为值fullfill promise。
+
+
+```javascript
 function resolvePromise(bridgepromise, x, resolve, reject) {
     //2.3.1规范，避免循环引用
     if (bridgepromise === x) {
@@ -372,7 +370,8 @@ function resolvePromise(bridgepromise, x, resolve, reject) {
     }
 }
 ```
-```js
+
+```javascript
 MyPromise.prototype.catch = function(onRejected) {
     return this.then(null, onRejected);
 }
@@ -380,47 +379,46 @@ MyPromise.prototype.catch = function(onRejected) {
 try {
     module.exports = MyPromise
 } catch (e) {}
-
 ```
 
 all（）、race（）
-```js
+
+```javascript
  Promise.all = function (promises) {
         //promises是一个promise的数组
-        return new Promise(function (resolve, reject) {
-            let result = []; //arr是最终返回值的结果
-            let count = 0; // 表示成功了多少次
-            for (let i = 0; i < promises.length; i++) {
-                promises[i].then(function (data) {
-                    result[i] = data;//有成功的就往数组里添加
-                    if (++count === promises.length) {
-                        resolve(result);//所有的promise都执行完，返回出去
-                    }
-                }, reject)
-            }
-        })
-    }
+     return new Promise((resolve,reject)=>{
+        for(let i = 0;i<promises.length;i++){
+            Promise.resolve(promises[i]).then((value)=>{
+                  result[i] = value;
+                  if(result.length === promises.length){//所有都执行完再返回参数顺序的结果
+                       resolve(result);
+                  }
+            },reject);
+        }
+    })
+ }
     // 只要有一个promise成功了 就算成功。如果第一个失败了就失败了
-    Promise.race = function (promises) {
+ Promise.race = function (promises) {
         return new Promise((resolve, reject) => {
             for (var i = 0; i < promises.length; i++) {
                 promises[i].then(resolve,reject) //只要有一个执行完就返回
             }
         })
-    }
-
+ }
 ```
 > all的原理就是返回一个promise，在这个promise中给所有传入的promise的then方法中都注册上回调，回调成功了就把值放到结果数组中，所有回调都成功了就让返回的这个promise去reslove，把结果数组返回出去，race和all大同小异，只不过它不会等所有promise都成功，而是谁快就把谁返回出去
 
 参考资料
+
 1. [一起学习造轮子（一）：从零开始写一个符合Promises/A+规范的promise](https://juejin.im/post/5b16800fe51d4506ae719bae#heading-22)
-2. [Promise不会？？看这里！！！史上最通俗易懂的Promise！！！](https://juejin.im/post/5afe6d3bf265da0b9e654c4b)
+1. [Promise不会？？看这里！！！史上最通俗易懂的Promise！！！](https://juejin.im/post/5afe6d3bf265da0b9e654c4b)
+
 
 ## async await
 Async/await 是以更舒适的方式使用 promise 的一种特殊语法，同时它也非常易于理解和使用。
 
 ### promise和await写法转换
-```js
+```javascript
 async function async1() {
     console.log('async1 start');
     await async2();
@@ -435,54 +433,58 @@ async function async1() {
   })
 }
 ```
+
+
 ### Async function
 让我们以 async 这个关键字开始。它可以被放置在一个函数前面
-
-```js
+```javascript
 async function f() {
   return 1;
 }
 ```
+
+
 这个函数总是返回一个 promise。其他值将自动被包装在一个 resolved 的 promise 中。
-
 例如，下面这个函数返回一个结果为 1 的 resolved promise，让我们测试一下
-
-```js
+```javascript
 async function f() {
   return 1;
 }
 
 f().then(alert); // 1
 ```
+
+
 ……我们也可以显式地返回一个 promise，结果是一样的：
-```js
+
+
+```javascript
 async function f() {
   return Promise.resolve(1);
 }
 
 f().then(alert); // 1
 ```
+
 所以说，async 确保了函数返回一个 promise，也会将非 promise 的值包装进去。
 
 ### Await
-
-```js
+```javascript
 // 只在 async 函数内工作
 let value = await promise;
 ```
-关键字` await `让 `JavaScript` 引擎等待直到 `promise `完成`（settle）`并返回结果。相比于 `promise.then`，它只是获取 `promise` 的结果的一个更优雅的语法，同时也更易于读写。
+
+关键字`await`让 `JavaScript` 引擎等待直到 `promise`完成`（settle）`并返回结果。相比于 `promise.then`，它只是获取 `promise` 的结果的一个更优雅的语法，同时也更易于读写。
 
 总结：
-
 所以`await`后跟的表达式不同，有两种处理结果
 1. 对于`promise`对象，await会阻塞函数执行，等待`promise`的`resolve`返回值，作为`await`的结果，然后再执行下下一个表达式
-2. 对于非`promise`对象，比如箭头函数，同步表达式等等，`await`等待函数或者直接量的返回，而不是等待其执行结果
+1. 对于非`promise`对象，比如箭头函数，同步表达式等等，`await`等待函数或者直接量的返回，而不是等待其执行结果
 
 
 
 ## promise题目
-
-```js
+```javascript
 const promise = new Promise((resolve, reject) => {
   resolve('success1')
   reject('error')
@@ -496,13 +498,14 @@ promise
   .catch((err) => {
     console.log('catch: ', err)
   })
-
 ```
 > 解释：构造函数中的 resolve 或 reject 只有第一次执行有效，多次调用没有任何作用。
-   结论：**promise 状态一旦改变则不能再变**。
-   
+> 结论：**promise 状态一旦改变则不能再变**。
+
+
+
 为什么说执行了resolve函数后"大部分情况"会进入fulfilled状态呢?考虑以下情况
-```js
+```javascript
 let promise=new Promise(resolve=>{
     resolve(Promise.reject('报错了'))
 })
@@ -512,9 +515,22 @@ setTimeout(()=>{
 })
 ```
 > 很多人认为promise中调用了resolve函数则这个promise一定会进入fulfilled状态,但是这里可以看到,即使调用了resolve函数,仍返回了一个拒绝状态的Promise,原因是因为如果在一个promise的resolve函数中又传入了一个Promise,会展开传入的这个promise
-这里因为传入了一个拒绝状态的promise,resolve函数展开这个promise后,就会变成一个拒绝状态的promise,所以把resolve理解为决议比较好一点
+> 这里因为传入了一个拒绝状态的promise,resolve函数展开这个promise后,就会变成一个拒绝状态的promise,所以把resolve理解为决议比较好一点
 
-   
-参考资料
-1. [Promise 必知必会（十道题）](https://juejin.im/post/5a04066351882517c416715d)
-2. [近一万字的ES6语法知识点补充](https://juejin.im/post/5c6234f16fb9a049a81fcca5#heading-8)
+
+
+实现一个sleep
+
+## 参考资料
+- [Promise 必知必会（十道题）](https://juejin.im/post/5a04066351882517c416715d)
+- [近一万字的ES6语法知识点补充](https://juejin.im/post/5c6234f16fb9a049a81fcca5#heading-8)
+- [从一道让我失眠的 Promise 面试题深入分析](https://mp.weixin.qq.com/s/JgR_oSLbxYpbAgwQuij1Eg)
+- [我以为我很懂Promise，直到我开始实现Promise/A+规范 | 技术点评](https://juejin.cn/post/6937076967283884040#heading-6)
+- [MDN promise.all](https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/Promise/all)
+- [看一道面试必备的基础题：异步实现一个 sleep 函数](https://mp.weixin.qq.com/s/E9k5_nTgkM2-MMmxkrXVfw)
+- [【建议星星】要就来45道Promise面试题一次爽到底(1.1w字用心整理)](https://juejin.cn/post/6844904077537574919#heading-51)
+
+
+
+
+
